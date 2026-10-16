@@ -12,7 +12,7 @@ interface Props {
 const CSS_HANDLES = ['productHighlightWrapper'] as const
 
 const ProductHighlightWrapper: FC<Props> = ({ children }) => {
-  const handles = useCssHandles(CSS_HANDLES)
+  const { handles } = useCssHandles(CSS_HANDLES)
   const value = useHighlight()
 
   if (!value) {

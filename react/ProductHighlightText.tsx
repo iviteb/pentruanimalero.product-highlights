@@ -24,7 +24,7 @@ const ProductHighlightText: FC<Props> = ({
   markers = [],
   link = '',
 }) => {
-  const handles = useCssHandles(CSS_HANDLES)
+  const { handles } = useCssHandles(CSS_HANDLES)
   const value = useHighlight()
   const intl = useIntl()
 
