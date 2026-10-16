@@ -1,26 +1,15 @@
-import type { FC, ReactNode } from 'react'
+import type { FC } from 'react'
 import React, { useMemo } from 'react'
 import { IOMessageWithMarkers, formatIOMessage } from 'vtex.native-types'
 import { useCssHandles } from 'vtex.css-handles'
 import { useIntl } from 'react-intl'
 
 import { useHighlight } from './ProductHighlights'
-import { getBadgeStyle } from './modules/badge'
-
-interface Props {
-  message: string
-  markers?: string[]
-  blockClass?: string
-  link?: string
-}
-
-interface MessageValues {
-  highlightName: ReactNode
-}
+import { getHighlightDataAttributes } from './modules/badge'
 
 const CSS_HANDLES = ['productHighlightText'] as const
 
-const ProductHighlightText: FC<Props> = ({
+const ProductHighlightText: FC<ProductHighlightTextProps> = ({
   message = '',
   markers = [],
   link = '',
@@ -29,58 +18,38 @@ const ProductHighlightText: FC<Props> = ({
   const value = useHighlight()
   const intl = useIntl()
 
-  const values = useMemo(() => {
-    const result: MessageValues = {
-      highlightName: '',
-    }
-
+  const values = useMemo<HighlightMessageValues>(() => {
     if (!value) {
-      return result
+      return { highlightName: '' }
     }
 
-    const style = getBadgeStyle(value.badge)
+    const Tag = link ? 'a' : 'span'
+    const href = link
+      ? (formatIOMessage(
+          {
+            intl,
+            id: link,
+          },
+          {
+            highlightId: value.highlight.id ?? '',
+            highlightName: value.highlight.name,
+          }
+        ) as string)
+      : undefined
 
-    if (link) {
-      const href = formatIOMessage(
-        {
-          intl,
-          id: link,
-        },
-        {
-          highlightId: value.highlight.id ?? '',
-          highlightName: value.highlight.name,
-        }
-      ) as string
-
-      result.highlightName = (
-        <a
+    return {
+      highlightName: (
+        <Tag
+          key={link ? 'highlightLink' : 'highlightName'}
           href={href}
-          key="highlightLink"
-          data-highlight-name={value.highlight.name}
-          data-highlight-id={value.highlight.id}
-          data-highlight-type={value.type}
+          {...getHighlightDataAttributes(value)}
           className={handles.productHighlightText}
-          style={style}
+          style={value.badgeStyle}
         >
           {value.highlight.name}
-        </a>
-      )
-    } else {
-      result.highlightName = (
-        <span
-          key="highlightName"
-          data-highlight-name={value.highlight.name}
-          data-highlight-id={value.highlight.id}
-          data-highlight-type={value.type}
-          className={handles.productHighlightText}
-          style={style}
-        >
-          {value.highlight.name}
-        </span>
-      )
+        </Tag>
+      ),
     }
-
-    return result
   }, [value, link, intl, handles.productHighlightText])
 
   if (!value || !message) {

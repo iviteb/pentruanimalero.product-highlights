@@ -1,25 +1,9 @@
 import type { CSSProperties } from 'react'
 
-const normalize = (value?: string) => value?.trim().toLowerCase() ?? ''
+export const normalizeHighlightName = (value?: string) =>
+  value?.trim().toLowerCase() ?? ''
 
-export function findHighlightBadge(
-  highlightName: string,
-  badges: HighlightBadge[] = []
-) {
-  const name = normalize(highlightName)
-
-  if (!name) {
-    return undefined
-  }
-
-  return badges.find((badge) => normalize(badge?.badgeLabel) === name)
-}
-
-export function getBadgeStyle(badge?: HighlightBadge) {
-  if (!badge) {
-    return undefined
-  }
-
+const getBadgeStyle = (badge: HighlightBadge) => {
   const style: Record<string, string> = {}
 
   if (badge.badgeBackgroundColor) {
@@ -32,3 +16,27 @@ export function getBadgeStyle(badge?: HighlightBadge) {
 
   return Object.keys(style).length ? (style as CSSProperties) : undefined
 }
+
+export const createBadgeStyleMap = (badges: HighlightBadge[] = []) => {
+  const styles = new Map<string, CSSProperties>()
+
+  badges.forEach((badge) => {
+    const name = normalizeHighlightName(badge?.badgeLabel)
+    const style = badge && getBadgeStyle(badge)
+
+    if (name && style && !styles.has(name)) {
+      styles.set(name, style)
+    }
+  })
+
+  return styles
+}
+
+export const getHighlightDataAttributes = ({
+  highlight,
+  type,
+}: ProductHighlightContextValue) => ({
+  'data-highlight-name': highlight.name,
+  'data-highlight-id': highlight.id,
+  'data-highlight-type': type,
+})

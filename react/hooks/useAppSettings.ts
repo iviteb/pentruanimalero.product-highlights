@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useQuery } from 'react-apollo'
 
 import SettingsQuery from '../graphql/getAppSettings.gql'
@@ -22,7 +23,8 @@ const useAppSettings = () => {
     skip: !appName,
   })
 
-  const settings = parseSettings(data?.publicSettingsForApp?.message)
+  const message = data?.publicSettingsForApp?.message
+  const settings = useMemo(() => parseSettings(message), [message])
 
   return { settings, loading, error }
 }
