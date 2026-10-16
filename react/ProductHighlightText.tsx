@@ -5,6 +5,7 @@ import { useCssHandles } from 'vtex.css-handles'
 import { useIntl } from 'react-intl'
 
 import { useHighlight } from './ProductHighlights'
+import { getBadgeStyle } from './modules/badge'
 
 interface Props {
   message: string
@@ -37,6 +38,8 @@ const ProductHighlightText: FC<Props> = ({
       return result
     }
 
+    const style = getBadgeStyle(value.badge)
+
     if (link) {
       const href = formatIOMessage(
         {
@@ -57,6 +60,7 @@ const ProductHighlightText: FC<Props> = ({
           data-highlight-id={value.highlight.id}
           data-highlight-type={value.type}
           className={handles.productHighlightText}
+          style={style}
         >
           {value.highlight.name}
         </a>
@@ -69,6 +73,7 @@ const ProductHighlightText: FC<Props> = ({
           data-highlight-id={value.highlight.id}
           data-highlight-type={value.type}
           className={handles.productHighlightText}
+          style={style}
         >
           {value.highlight.name}
         </span>

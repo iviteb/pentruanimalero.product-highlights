@@ -5,6 +5,8 @@ import type { ProductTypes } from 'vtex.product-context'
 import { useProduct } from 'vtex.product-context'
 
 import { getSeller } from './modules/seller'
+import { findHighlightBadge } from './modules/badge'
+import useAppSettings from './hooks/useAppSettings'
 
 type HighlightType = 'collection' | 'promotion' | 'teaser'
 
@@ -32,6 +34,7 @@ interface Highlight {
 interface ProductHighlightContextProviderProps {
   highlight: Highlight
   type: HighlightType
+  badge?: HighlightBadge
 }
 
 function createFilterHighlight(filter: Filter) {
@@ -53,13 +56,14 @@ const ProductHighlightContext =
   React.createContext<ProductHighlightContextProviderProps | null>(null)
 
 const ProductHighlightContextProvider: FC<ProductHighlightContextProviderProps> =
-  ({ highlight, type, children }) => {
+  ({ highlight, type, badge, children }) => {
     const contextValue = useMemo(
       () => ({
         highlight,
         type,
+        badge,
       }),
-      [highlight, type]
+      [highlight, type, badge]
     )
 
     return (
@@ -75,6 +79,8 @@ function ProductHighlights({
   children,
 }: ProductHighlightsProps) {
   const { product, selectedItem } = useProduct() ?? {}
+  const { settings } = useAppSettings()
+  const { highlightBadges } = settings
   const selectedSku = selectedItem ?? product?.items?.[0]
   const seller: ProductTypes.Seller | null = selectedSku
     ? getSeller(selectedSku)
@@ -119,6 +125,7 @@ function ProductHighlights({
           key={index}
           type={type}
           highlight={highlight}
+          badge={findHighlightBadge(highlight.name, highlightBadges)}
         >
           {children}
         </ProductHighlightContextProvider>

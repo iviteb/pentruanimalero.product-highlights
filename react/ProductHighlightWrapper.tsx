@@ -3,6 +3,7 @@ import React from 'react'
 import { useCssHandles } from 'vtex.css-handles'
 
 import { useHighlight } from './ProductHighlights'
+import { getBadgeStyle } from './modules/badge'
 
 interface Props {
   blockClass?: string
@@ -25,6 +26,7 @@ const ProductHighlightWrapper: FC<Props> = ({ children }) => {
       data-highlight-id={value.highlight.id}
       data-highlight-type={value.type}
       className={handles.productHighlightWrapper}
+      style={getBadgeStyle(value.badge)}
     >
       {children}
     </div>

@@ -24,7 +24,7 @@ In your theme `manifest.json` file, add the Product Highlights app as a dependen
 
 ```diff
  "dependencies": {
-+  "vtex.product-highlights": "2.x"
++  "pentruanimalero.product-highlights": "0.x"
 }
 ```
 
@@ -33,7 +33,7 @@ Now, you can use all the blocks exported by the `product-highlights` app. See th
 | Block name                  | Description                                                                                                                                                                          |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `product-highlights`        | Parent block for defining how the Product Highlights component will be displayed, based on its children blocks (`product-highlight-text` and `product-highlight-wrapper`) and props. |
-| `product-highlight-text`    | Renders a `span` HTML tag with the highlight name. It also provides data attributes and CSS handles for style customizations.                                                        |
+| `product-highlight-text`    | Renders a `span` HTML tag (or an `a` tag, when the `link` prop is set) with the highlight name. It also provides data attributes and CSS handles for style customizations.           |
 | `product-highlight-wrapper` | You may use this block if you need to render other blocks alongside the highlight name. It renders a `div` HTML tag and its children blocks, if any.                                 |
 
 ### Step 2 - Adding the Product Highlights blocks to your theme templates
@@ -44,7 +44,7 @@ Copy one of the examples stated below and paste it into your desired theme templ
 
 ```json
 {
-  "vtex.product-highlights@2.x:product-highlights": {
+  "pentruanimalero.product-highlights@0.x:product-highlights": {
     "children": ["product-highlight-text"]
   },
   "product-highlight-text": {
@@ -59,7 +59,7 @@ Copy one of the examples stated below and paste it into your desired theme templ
 
 ```json
 {
-  "vtex.product-highlights@2.x:product-highlights": {
+  "pentruanimalero.product-highlights@0.x:product-highlights": {
     "children": ["product-highlight-text"]
   },
   "product-highlight-text": {
@@ -75,7 +75,7 @@ Copy one of the examples stated below and paste it into your desired theme templ
 
 ```jsonc
 {
-  "vtex.product-highlights@2.x:product-highlights": {
+  "pentruanimalero.product-highlights@0.x:product-highlights": {
     "children": ["product-highlight-wrapper"]
   },
   "product-highlight-wrapper": {
@@ -96,7 +96,7 @@ Copy one of the examples stated below and paste it into your desired theme templ
 
 ```jsonc
 {
-  "vtex.product-highlights@2.x:product-highlights": {
+  "pentruanimalero.product-highlights@0.x:product-highlights": {
     "props": {
       "type": "teaser",
       "filter": {
@@ -123,8 +123,8 @@ Copy one of the examples stated below and paste it into your desired theme templ
 
 | Prop name | Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | Default value |
 | --------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| `type`    | `enum`   | The desired type of product highlight to be displayed. Possible values are: `collection`, `promotion`, and `teaser`. `collection` highlights the product's collection, so it must be used with the [Collection Highlight](https://help.vtex.com/en/tutorial/collection-highlight-control--1tGdb2ndjqy6yWsk2YwKMu?locale=en) feature. `promotion` and `teaser` should be used when the product is configured with a [promotion that includes highlights](https://help.vtex.com/en/tutorial/configuring-promotions-with-a-highlightflag--tutorials_2295?locale=en). It can be used even if the promotion does not have any restrictions. On the other hand, the `teaser` must only be used when the promotion has restrictions. ⚠️* Note that nominal promotions will only be displayed in the cart, not on the shelf or product page.* | `collection`  |
-| `filter`  | `object` | Defines which highlights should and should not be displayed by the block.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | `undefined`   |
+| `type`    | `enum`   | The desired type of product highlight to be displayed. Possible values are: `collection`, `promotion`, and `teaser`. `collection` highlights the product's collection, so it must be used with the [Collection Highlight](https://help.vtex.com/en/tutorial/collection-highlight-control--1tGdb2ndjqy6yWsk2YwKMu?locale=en) feature. `promotion` and `teaser` should be used when the product is configured with a [promotion that includes highlights](https://help.vtex.com/en/tutorial/configuring-promotions-with-a-highlightflag--tutorials_2295?locale=en). It can be used even if the promotion does not have any restrictions. On the other hand, the `teaser` must only be used when the promotion has restrictions. _⚠️ Note that nominal promotions will only be displayed in the cart, not on the shelf or product page._ | `collection`  |
+| `filter`  | `object` | Defines which highlights should and should not be displayed by the block. When omitted, all highlights are displayed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `undefined`   |
 
 > ⚠️ Technically, the `collection` highlight maps to the [`clusterHighlights`](https://github.com/vtex-apps/search-graphql/blob/ea1d7e244e6b00b58e5aa4272fbb16987c483468/graphql/types/Product.graphql#L29) property; the `promotion` highlight maps to the [`discountHighlights`](https://github.com/vtex-apps/search-graphql/blob/ea1d7e244e6b00b58e5aa4272fbb16987c483468/graphql/types/Product.graphql#L283) property; and the `teaser` highlight maps to the [`teasers`](https://github.com/vtex-apps/search-graphql/blob/ea1d7e244e6b00b58e5aa4272fbb16987c483468/graphql/types/Product.graphql#L284) property.
 
@@ -132,8 +132,8 @@ Copy one of the examples stated below and paste it into your desired theme templ
 
 | Prop name        | Type       | Description                                                                                                                                                                                                                                                                | Default value |
 | ---------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| `highlightNames` | `[string]` | An array of highlight names that determine which highlights should be hidden or shown based on the `type` property defined in the `product-highlights` block.                                                                                                              | `undefined`   |
-| `type`           | `enum`     | Determines whether the highlights for the `highlightNames` prop should be displayed or hidden on the UI. Possible values are: `hide` (hides highlights declared in the `highlightNames` prop) or `show` (only shows the highlights declared in the `highlightNames` prop). | `undefined`   |
+| `highlightNames` | `[string]` | An array of highlight names that determine which highlights should be hidden or shown based on the `type` property of the `filter` object. The Site Editor accepts up to 5 names.                                                                                          | `[]`          |
+| `type`           | `enum`     | Determines whether the highlights for the `highlightNames` prop should be displayed or hidden on the UI. Possible values are: `hide` (hides highlights declared in the `highlightNames` prop) or `show` (only shows the highlights declared in the `highlightNames` prop). | `hide`        |
 
 #### `product-highlight-text` props
 
@@ -142,7 +142,7 @@ Copy one of the examples stated below and paste it into your desired theme templ
 | `blockClass` | `string`   | The block ID you chose to be used for [CSS customization](https://developers.vtex.com/docs/guides/vtex-io-documentation-using-css-handles-for-store-customization#using-the-blockclass-property).                                                                                                                                                                                                                       | `undefined`   |
 | `message`    | `string`   | Defines the block default text message to be rendered in the UI. You can also use the Admin Site Editor and the `markers` prop to specify the text message that the block will render on the UI.                                                                                                                                                                                                                        | `undefined`   |
 | `markers`    | `[string]` | IDs you chose to identify the block's rendered text message and customize it using the Admin Site Editor. Learn how to use them in [Using the Markers prop to customize a block message](https://developers.vtex.com/docs/guides/vtex-io-documentation-using-the-markers-prop-to-customize-a-blocks-message). Note that a block message can also be customized in the Store Theme source code using the `message` prop. | `[]`          |
-| `link`       | `string`   | If this prop is set, it creates a link to the string passed. You can interpolate the variables `highlightText` and `highlightId`. Example: `/collection/{highlightId}`.                                                                                                                                                                                                                                                 | `undefined`   |
+| `link`       | `string`   | If this prop is set, it creates a link to the string passed. You can interpolate the variables `highlightName` and `highlightId`. Example: `/collection/{highlightId}`.                                                                                                                                                                                                                                                 | `undefined`   |
 
 #### `product-highlight-wrapper` props
 
@@ -158,9 +158,9 @@ When using the `message` prop, you will not need to create an advanced configura
 
 The `markers` prop, in turn, requires you to add an extra configuration in the Site Editor of the Admin to properly work. When using this prop, do not forget to check out the block's message variables (shown in the table below) and the [Using the Markers prop to customize a block's message](https://developers.vtex.com/docs/guides/vtex-io-documentation-using-the-markers-prop-to-customize-a-blocks-message) documentation.
 
-| Message variable | Type     | Description          |
-| ---------------- | -------- | -------------------- |
-| `highlightName`  | `string` | Highlights the name. |
+| Message variable | Type     | Description         |
+| ---------------- | -------- | ------------------- |
+| `highlightName`  | `string` | The highlight name. |
 
 ## Customization
 
@@ -176,6 +176,35 @@ To apply CSS customizations to this and other blocks, follow the instructions in
 | `data-highlight-name` |
 | `data-highlight-id`   |
 | `data-highlight-type` |
+
+### Badge colors (app settings)
+
+You can define a background color and a text color for each highlight in the app settings, without changing the theme code for every new highlight.
+
+1. In the VTEX Admin, go to **Apps > My Apps** and open the **Product Highlights** settings.
+2. In the **Highlight badges** list, add one entry per highlight:
+
+| Setting (Admin label)                               | Description                                                                                                                                   | Required |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| `badgeLabel` (**Badge label**)                      | The highlight name to match (the collection, promotion or teaser name). Matching is case-insensitive and ignores leading and trailing spaces. | Yes      |
+| `badgeBackgroundColor` (**Badge background color**) | Any valid CSS color, such as `#ff0000` or `rgb(255, 0, 0)`.                                                                                   | No       |
+| `badgeTextColor` (**Badge text color**)             | Any valid CSS color, such as `#ffffff`.                                                                                                       | No       |
+
+When a highlight name matches a `badgeLabel`, the configured colors are set as inline CSS variables on the elements rendered by `product-highlight-wrapper` (`productHighlightWrapper` handle) and `product-highlight-text` (`productHighlightText` handle). A variable is only set when its color is filled in.
+
+| CSS variable               | Source setting         |
+| -------------------------- | ---------------------- |
+| `--badge-background-color` | `badgeBackgroundColor` |
+| `--badge-text-color`       | `badgeTextColor`       |
+
+The app does not apply the colors by itself. Use the variables in your theme's `styles/css/pentruanimalero.product-highlights.css` file, with fallbacks for highlights that have no configured colors:
+
+```css
+.productHighlightWrapper {
+  background-color: var(--badge-background-color, transparent);
+  color: var(--badge-text-color, inherit);
+}
+```
 
 <!-- DOCS-IGNORE:start -->
 
