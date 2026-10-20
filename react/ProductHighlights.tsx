@@ -1,112 +1,103 @@
-import type { FC, ReactNode } from 'react'
+import type { FC } from 'react'
 import React, { useContext, useMemo } from 'react'
 import { defineMessages } from 'react-intl'
 import type { ProductTypes } from 'vtex.product-context'
 import { useProduct } from 'vtex.product-context'
 
 import { getSeller } from './modules/seller'
+import { createBadgeStyleMap, normalizeHighlightName } from './modules/badge'
+import useAppSettings from './hooks/useAppSettings'
 
-type HighlightType = 'collection' | 'promotion' | 'teaser'
-
-interface Filter {
-  type: 'hide' | 'show'
-  highlightNames: string[]
-}
-
-interface ProductHighlightsProps {
-  filter?: Filter
-  type?: HighlightType
-  children: NonNullable<ReactNode>
-}
-
-const defaultFilter: Filter = {
+const defaultFilter: HighlightFilter = {
   type: 'hide',
   highlightNames: [],
 }
 
-interface Highlight {
-  id?: string
-  name: string
-}
+const createFilterHighlight =
+  (filter: HighlightFilter) => (highlight: ProductHighlight) => {
+    const hasHighlight =
+      filter.highlightNames?.includes(highlight.name) ?? false
 
-interface ProductHighlightContextProviderProps {
-  highlight: Highlight
-  type: HighlightType
-}
+    if (filter.type === 'hide') {
+      return !hasHighlight
+    }
 
-function createFilterHighlight(filter: Filter) {
-  return function filterHighlight(highlight: Highlight) {
-    const hasHighlight = filter.highlightNames?.includes(highlight.name)
-
-    if (
-      (filter.type === 'hide' && hasHighlight) ||
-      (filter.type === 'show' && !hasHighlight)
-    ) {
-      return false
+    if (filter.type === 'show') {
+      return hasHighlight
     }
 
     return true
   }
+
+const getHighlightsByType = (
+  type: HighlightType,
+  product?: ProductTypes.Product | null,
+  seller?: ProductTypes.Seller | null
+): ProductHighlight[] => {
+  switch (type) {
+    case 'collection':
+      return product?.clusterHighlights ?? []
+
+    case 'promotion':
+      return seller?.commertialOffer?.discountHighlights ?? []
+
+    case 'teaser':
+      return seller?.commertialOffer?.teasers ?? []
+
+    default:
+      return []
+  }
 }
 
 const ProductHighlightContext =
-  React.createContext<ProductHighlightContextProviderProps | null>(null)
+  React.createContext<ProductHighlightContextValue | null>(null)
 
-const ProductHighlightContextProvider: FC<ProductHighlightContextProviderProps> =
-  ({ highlight, type, children }) => {
-    const contextValue = useMemo(
-      () => ({
-        highlight,
-        type,
-      }),
-      [highlight, type]
-    )
+const ProductHighlightContextProvider: FC<ProductHighlightContextValue> = ({
+  highlight,
+  type,
+  badgeStyle,
+  children,
+}) => {
+  const contextValue = useMemo(
+    () => ({
+      highlight,
+      type,
+      badgeStyle,
+    }),
+    [highlight, type, badgeStyle]
+  )
 
-    return (
-      <ProductHighlightContext.Provider value={contextValue}>
-        {children}
-      </ProductHighlightContext.Provider>
-    )
-  }
+  return (
+    <ProductHighlightContext.Provider value={contextValue}>
+      {children}
+    </ProductHighlightContext.Provider>
+  )
+}
 
-function ProductHighlights({
+const ProductHighlights = ({
   filter = defaultFilter,
   type = 'collection',
   children,
-}: ProductHighlightsProps) {
+}: ProductHighlightsProps) => {
   const { product, selectedItem } = useProduct() ?? {}
+  const { settings } = useAppSettings()
+  const badgeStyles = useMemo(
+    () => createBadgeStyleMap(settings.highlightBadges),
+    [settings.highlightBadges]
+  )
+
   const selectedSku = selectedItem ?? product?.items?.[0]
   const seller: ProductTypes.Seller | null = selectedSku
     ? getSeller(selectedSku)
     : null
 
-  const highlights = useMemo(() => {
-    const clusterHighlights = product?.clusterHighlights ?? []
-    const discountHighlights = seller?.commertialOffer?.discountHighlights ?? []
-    const teasers = seller?.commertialOffer?.teasers ?? []
-
-    const filterHighlight = createFilterHighlight(filter)
-
-    if (type === 'collection') {
-      return clusterHighlights.filter(filterHighlight)
-    }
-
-    if (type === 'promotion') {
-      return discountHighlights.filter(filterHighlight)
-    }
-
-    if (type === 'teaser') {
-      return teasers.filter(filterHighlight)
-    }
-
-    return []
-  }, [
-    filter,
-    product?.clusterHighlights,
-    seller?.commertialOffer?.discountHighlights,
-    seller?.commertialOffer?.teasers,
-    type,
-  ])
+  const highlights = useMemo(
+    () =>
+      getHighlightsByType(type, product, seller).filter(
+        createFilterHighlight(filter)
+      ),
+    [filter, product, seller, type]
+  )
 
   if (!product) {
     return null
@@ -116,9 +107,10 @@ function ProductHighlights({
     <>
       {highlights.map((highlight, index) => (
         <ProductHighlightContextProvider
-          key={index}
+          key={`${highlight.name}-${index}`}
           type={type}
           highlight={highlight}
+          badgeStyle={badgeStyles.get(normalizeHighlightName(highlight.name))}
         >
           {children}
         </ProductHighlightContextProvider>
@@ -198,7 +190,7 @@ ProductHighlights.schema = {
       },
     },
     type: {
-      title: 'admin/editor.product-highlights.type',
+      title: messages.QueryType.id,
       type: 'string',
       enum: ['collection', 'promotion', 'teaser'],
       enumNames: [

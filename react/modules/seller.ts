@@ -1,6 +1,6 @@
 import type { ProductTypes } from 'vtex.product-context'
 
-export function getSeller(item: ProductTypes.Item) {
+export const getSeller = (item: ProductTypes.Item) => {
   const defaultSeller = item?.sellers?.find((seller) => seller.sellerDefault)
 
   if (!defaultSeller) {

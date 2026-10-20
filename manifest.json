@@ -1,23 +1,56 @@
 {
-  "vendor": "vtex",
+  "vendor": "pentruanimalero",
   "name": "product-highlights",
-  "version": "2.3.2",
+  "version": "0.0.0",
   "title": "Product Highlights",
   "description": "",
   "builders": {
-    "react": "3.x",
     "docs": "0.x",
-    "store": "0.x",
-    "messages": "1.x"
+    "messages": "1.x",
+    "react": "3.x",
+    "store": "0.x"
   },
   "dependencies": {
-    "vtex.product-context": "0.x",
+    "vtex.apps-graphql": "3.x",
+    "vtex.css-handles": "1.x",
     "vtex.native-types": "0.x",
-    "vtex.css-handles": "0.x"
+    "vtex.product-context": "0.x"
   },
-  "registries": [
-    "smartcheckout"
-  ],
+  "registries": ["smartcheckout"],
   "policies": [],
+  "settingsSchema": {
+    "title": "Product Highlights Settings",
+    "type": "object",
+    "access": "public",
+    "properties": {
+      "highlightBadges": {
+        "title": "Highlight badges",
+        "description": "Maps a highlight name to badge colors. The colors are exposed as the CSS variables --badge-background-color and --badge-text-color on the highlight wrapper and text elements.",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "badgeLabel": {
+              "title": "Badge label",
+              "description": "Highlight name to match (collection, promotion or teaser name). Matching is case-insensitive.",
+              "type": "string"
+            },
+            "badgeBackgroundColor": {
+              "title": "Badge background color",
+              "description": "Any valid CSS color. Ex: #ff0000, rgb(255, 0, 0)",
+              "type": "string"
+            },
+            "badgeTextColor": {
+              "title": "Badge text color",
+              "description": "Any valid CSS color. Ex: #ffffff, rgb(255, 255, 255)",
+              "type": "string"
+            }
+          },
+          "required": ["badgeLabel"]
+        },
+        "default": []
+      }
+    }
+  },
   "$schema": "https://raw.githubusercontent.com/vtex/node-vtex-api/master/gen/manifest.schema"
 }
